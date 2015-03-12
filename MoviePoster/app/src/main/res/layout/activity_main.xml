@@ -11,16 +11,12 @@
     <!-- As the main content view, the view below consumes the entire
          space available using match_parent in both dimensions. -->
     <FrameLayout android:id="@+id/container"
-<<<<<<< HEAD
         android:layout_width="match_parent"
         android:layout_height="match_parent" >
         <ListView
             android:id="@android:id/list"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"/>
-=======
-        android:layout_width="fill_parent"
-        android:layout_height="fill_parent" >
 
         <ScrollView
             android:layout_width="wrap_content"
@@ -31,7 +27,7 @@
             android:layout_gravity="center"
             android:rowCount="@integer/abc_max_action_buttons"
             android:columnCount="1"
-            android:id="@+id/">
+            android:id="@+id/Grid">
 
             <ImageButton
                 android:layout_width="360px"
@@ -61,7 +57,8 @@
                 android:background="@drawable/poster1"
                 android:layout_marginLeft="20px"
                 android:layout_marginTop="20px"
-                android:layout_row="1" />
+                android:layout_row="1"
+                tools:ignore="GridLayout" />
 
             <ImageButton
                 android:layout_width="360px"
@@ -80,11 +77,11 @@
                 android:layout_column="1"
                 android:background="@drawable/poster1"
                 android:layout_marginLeft="20px"
-                android:layout_marginTop="20px" />
+                android:layout_marginTop="20px"
+                tools:ignore="GridLayout" />
 
         </GridLayout>
         </ScrollView>
->>>>>>> 25a27cff1542d484d465ed6afddd2bcd026e6f91
 
     </FrameLayout>
 
