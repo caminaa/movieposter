@@ -56,7 +56,7 @@ public class MainActivity extends ActionBarActivity
 
         movieList = new ArrayList<HashMap<String, String>>();
 
-        ListView list = getListView();
+        //ListView list = getListView();
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
