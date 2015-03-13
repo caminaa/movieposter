@@ -1,174 +1,172 @@
 package dev.movieposter_team.local.movieposter;
 
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.ActionBar;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.content.Context;
-import android.os.Build;
-import android.os.Bundle;
-import android.view.Gravity;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.support.v4.widget.DrawerLayout;
-import android.widget.ArrayAdapter;
-import android.widget.ListView;
-import android.widget.TextView;
-
-import org.json.JSONArray;
-
+/**
+ * Created by Adrien on 12/03/2015.
+ */
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
-public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerFragment.NavigationDrawerCallbacks {
+import android.app.ListActivity;
+import android.app.ProgressDialog;
+import android.content.Intent;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Log;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
+import android.widget.ListAdapter;
+import android.widget.ListView;
+import android.widget.SimpleAdapter;
+import android.widget.TextView;
 
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
+public class MainActivity extends ListActivity {
 
-    /**
-     * Used to store the last screen title. For use in {@link #restoreActionBar()}.
-     */
-    private CharSequence mTitle;
-    private ProgressDialog pDialog;
+    public ProgressDialog pDialog;
 
-    // URL to get movies JSON
-    private static String url = "http://api.allocine.fr/rest/v3/movielist?partner=YW5kcm9pZC12M3M&count=25&filter=nowshowing&page=1&order=datedesc&format=json";
+    // URL to get contacts JSON
+    public static String url = "http://api.allocine.fr/rest/v3/movielist?partner=YW5kcm9pZC12M3M&count=25&filter=nowshowing&page=1&order=datedesc&format=json";
+
+    // JSON Node names
+    private static final String TAG_MOVIES = "movie";
+    private static final String TAG_STATS = "statistics";
+    private static final String TAG_TITLE = "title";
+    //private static final String TAG_PRODUCTIONYEAR = "productionYear";
+    private static final String TAG_SYNOPSIS = "synopsisShort";
+    private static final String TAG_PRESS = "pressRating";
+
 
     // movies JSONArray
-    JSONArray movies = null;
+    public JSONArray movies = null;
 
     // Hashmap for ListView
-    ArrayList<HashMap<String, String>> movieList;
+    public ArrayList<HashMap<String, String>> moviesList;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        movieList = new ArrayList<HashMap<String, String>>();
+        moviesList = new ArrayList<HashMap<String, String>>();
 
-        ListView list = getListView();
+        ListView lv = getListView();
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getSupportFragmentManager().findFragmentById(R.id.navigation_drawer);
-        mTitle = getTitle();
+        // Listview on item click listener
+        lv.setOnItemClickListener(new OnItemClickListener() {
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setUp(
-                R.id.navigation_drawer,
-                (DrawerLayout) findViewById(R.id.drawer_layout));
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                // getting values from selected ListItem
+                String title = ((TextView) view.findViewById(R.id.title))
+                        .getText().toString();
+                String synopsis = ((TextView) view.findViewById(R.id.synopsisShort))
+                        .getText().toString();
+                String press = ((TextView) view.findViewById(R.id.pressRating))
+                        .getText().toString();
 
+                // Starting single contact activity
+                Intent in = new Intent(getApplicationContext(), SingleMovieActivity.class);
+                in.putExtra(TAG_TITLE, title);
+                in.putExtra(TAG_SYNOPSIS, synopsis);
+                in.putExtra(TAG_PRESS, press);
+                startActivity(in);
+
+            }
+        });
+
+        // Calling async task to get json
+        new GetMovies().execute();
     }
-
-
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        // update the main content by replacing fragments
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction()
-                .replace(R.id.container, PlaceholderFragment.newInstance(position + 1))
-                .commit();
-    }
-
-    public void onSectionAttached(int number) {
-        switch (number) {
-            case 1:
-                mTitle = getString(R.string.title_section1);
-                break;
-            case 2:
-                mTitle = getString(R.string.title_section2);
-                break;
-            case 3:
-                mTitle = getString(R.string.title_section3);
-                break;
-        }
-    }
-
-    public void restoreActionBar() {
-        ActionBar actionBar = getSupportActionBar();
-        actionBar.setNavigationMode(ActionBar.NAVIGATION_MODE_STANDARD);
-        actionBar.setDisplayShowTitleEnabled(true);
-        actionBar.setTitle(mTitle);
-    }
-
-
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            restoreActionBar();
-            return true;
-        }
-        return super.onCreateOptionsMenu(menu);
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
-
-
     /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-        /**
-         * The fragment argument representing the section number for this
-         * fragment.
-         */
-        private static final String ARG_SECTION_NUMBER = "section_number";
+     * Async task class to get json by making HTTP call
+     * */
+    private class GetMovies extends AsyncTask<Void, Void, Void> {
 
-        /**
-         * Returns a new instance of this fragment for the given section
-         * number.
-         */
-        public static PlaceholderFragment newInstance(int sectionNumber) {
-            PlaceholderFragment fragment = new PlaceholderFragment();
-            Bundle args = new Bundle();
-            args.putInt(ARG_SECTION_NUMBER, sectionNumber);
-            fragment.setArguments(args);
-            return fragment;
-        }
+        @Override
+        protected void onPreExecute() {
+            super.onPreExecute();
+            // Showing progress dialog
+            pDialog = new ProgressDialog(MainActivity.this);
+            pDialog.setMessage("Please wait...");
+            pDialog.setCancelable(false);
+            pDialog.show();
 
-        public PlaceholderFragment() {
         }
 
         @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
+        protected Void doInBackground(Void... arg0) {
+            // Creating service handler class instance
+            ServiceHandler sh = new ServiceHandler();
+
+            // Making a request to url and getting response
+            String jsonStr = sh.makeServiceCall(url, ServiceHandler.GET);
+
+            Log.d("Response: ", "> " + jsonStr);
+
+            if (jsonStr != null) {
+                try {
+                    JSONObject jsonObj = new JSONObject(jsonStr);
+
+                    // Getting JSON Array node
+                    movies = jsonObj.getJSONArray(TAG_MOVIES);
+
+                    // looping through All Contacts
+                    for (int i = 0; i < movies.length(); i++) {
+                        JSONObject c = movies.getJSONObject(i);
+
+                        String title = c.getString(TAG_TITLE);
+                        String synopsisShort = c.getString(TAG_SYNOPSIS);
+
+
+
+                        // Stats node is JSON Object
+                        JSONObject statistics = c.getJSONObject(TAG_STATS);
+                        String press = c.getString(TAG_PRESS);
+
+                        // tmp hashmap for single contact
+                        HashMap<String, String> movies = new HashMap<String, String>();
+
+                        // adding each child node to HashMap key => value
+                        movies.put(TAG_TITLE, title);
+                        movies.put(TAG_SYNOPSIS, synopsisShort);
+                        movies.put(TAG_PRESS, press);
+
+
+                        // adding contact to contact list
+                        moviesList.add(movies);
+                    }
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                Log.e("ServiceHandler", "Couldn't get any data from the url");
+            }
+
+            return null;
         }
 
         @Override
-        public void onAttach(Activity activity) {
-            super.onAttach(activity);
-            ((MainActivity) activity).onSectionAttached(
-                    getArguments().getInt(ARG_SECTION_NUMBER));
+        protected void onPostExecute(Void result) {
+            super.onPostExecute(result);
+            // Dismiss the progress dialog
+            if (pDialog.isShowing())
+                pDialog.dismiss();
+            /**
+             * Updating parsed JSON data into ListView
+             * */
+            ListAdapter adapter = new SimpleAdapter(
+                    MainActivity.this, moviesList,
+                    R.layout.list_item, new String[] { TAG_TITLE, TAG_SYNOPSIS,
+                    TAG_PRESS }, new int[] { R.id.title,
+                    R.id.synopsisShort, R.id.pressRating });
+
+            setListAdapter(adapter);
         }
+
     }
-
 }
