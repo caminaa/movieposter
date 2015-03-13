@@ -17,11 +17,11 @@
             </intent-filter>
         </activity>
 
-        <!-- Single List Item Activity
+        Single List Item Activity
         <activity
             android:label="Movies"
             android:name="dev.movieposter_team.local.movieposter.SingleMovieActivity" >
-        </activity>-->
+        </activity>
     </application>
 
 
