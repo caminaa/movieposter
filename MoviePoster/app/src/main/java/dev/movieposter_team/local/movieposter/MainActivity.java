@@ -112,8 +112,12 @@ public class MainActivity extends ListActivity {
                 try {
                     JSONObject jsonObj = new JSONObject(jsonStr);
 
+                    //get feed
+                    JSONObject feedObj = jsonObj.getJSONObject("feed");
+
+
                     // Getting JSON Array node
-                    movies = jsonObj.getJSONArray(TAG_MOVIES);
+                    movies = feedObj.getJSONArray(TAG_MOVIES);
 
                     // looping through All Contacts
                     for (int i = 0; i < movies.length(); i++) {
@@ -125,8 +129,8 @@ public class MainActivity extends ListActivity {
 
 
                         // Stats node is JSON Object
-                        JSONObject statistics = c.getJSONObject(TAG_STATS);
-                        String press = c.getString(TAG_PRESS);
+                        //JSONObject statistics = c.getJSONObject(TAG_STATS);
+                        //String press = c.getString(TAG_PRESS);
 
                         // tmp hashmap for single contact
                         HashMap<String, String> movies = new HashMap<String, String>();
@@ -134,7 +138,7 @@ public class MainActivity extends ListActivity {
                         // adding each child node to HashMap key => value
                         movies.put(TAG_TITLE, title);
                         movies.put(TAG_SYNOPSIS, synopsisShort);
-                        movies.put(TAG_PRESS, press);
+                        //movies.put(TAG_PRESS, press);
 
 
                         // adding contact to contact list
